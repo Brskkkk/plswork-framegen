@@ -1,0 +1,42 @@
+// Minimal UTF-16 → UTF-8 implementation for pe-parse on Android.
+// Mali-G57 fallback: not needed, using pre-compiled shaders
+
+// #include <pe-parse/to_string.h>  // Mali: no shader extraction
+
+#include <cstdint>
+#include <string>
+
+// Stub namespace for compatibility
+namespace peparse {
+
+// Dummy implementation - not used on Mali path
+std::string from_utf16(const std::string &u) {
+    return u;  // passthrough
+}
+        if (cp >= 0xD800 && cp <= 0xDBFF && i + 1 < u.size()) {
+            const std::uint32_t low = static_cast<std::uint16_t>(u[i + 1]);
+            if (low >= 0xDC00 && low <= 0xDFFF) {
+                cp = 0x10000 + ((cp - 0xD800) << 10) + (low - 0xDC00);
+                ++i;
+            }
+        }
+        if (cp < 0x80) {
+            out.push_back(static_cast<char>(cp));
+        } else if (cp < 0x800) {
+            out.push_back(static_cast<char>(0xC0 | (cp >> 6)));
+            out.push_back(static_cast<char>(0x80 | (cp & 0x3F)));
+        } else if (cp < 0x10000) {
+            out.push_back(static_cast<char>(0xE0 | (cp >> 12)));
+            out.push_back(static_cast<char>(0x80 | ((cp >> 6) & 0x3F)));
+            out.push_back(static_cast<char>(0x80 | (cp & 0x3F)));
+        } else {
+            out.push_back(static_cast<char>(0xF0 | (cp >> 18)));
+            out.push_back(static_cast<char>(0x80 | ((cp >> 12) & 0x3F)));
+            out.push_back(static_cast<char>(0x80 | ((cp >> 6) & 0x3F)));
+            out.push_back(static_cast<char>(0x80 | (cp & 0x3F)));
+        }
+    }
+    return out;
+}
+
+} // namespace peparse
